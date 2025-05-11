@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Airbnb Data Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff5a5f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #ff5a5f;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #e04a50;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .city-card {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .city-card:hover {
+            background-color: #ff5a5f;
+            color: white;
+        }
+        .country-header {
+            font-weight: bold;
+            margin-top: 15px;
+            grid-column: 1 / -1;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .region-header {
+            font-weight: bold;
+            margin-top: 10px;
+            grid-column: 1 / -1;
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Global Airbnb Data Explorer</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="continent-select">Filter by Continent:</label>
+                <select id="continent-select">
+                    <option value="all">All Continents</option>
+                    <option value="North America">North America</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Asia-Pacific">Asia-Pacific</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Latin America">Latin America</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="country-select">Filter by Country:</label>
+                <select id="country-select">
+                    <option value="all">All Countries</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="city-select">Select City:</label>
+                <select id="city-select">
+                    <option value="">Select a city</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="search">Quick Search:</label>
+                <input type="text" id="search" placeholder="Type city or region...">
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="go-button">Explore Airbnb Data</button>
+            </div>
+        </div>
+        
+        <iframe id="airbnb-frame" src="https://insideairbnb.com/explore/" frameborder="0"></iframe>
+        
+        <h2>Quick Access Cities</h2>
+        <div class="city-grid" id="city-grid">
+            <!-- Cities will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // City data organized by continent
+        const citiesByContinent = {
+            "North America": {
+                "Canada": [
+                    { name: "Montreal", region: "Quebec", path: "montreal" },
+                    { name: "New Brunswick", region: "New Brunswick", path: "new-brunswick" },
+                    { name: "Ottawa", region: "Ontario", path: "ottawa" },
+                    { name: "Quebec City", region: "Quebec", path: "quebec-city" },
+                    { name: "Toronto", region: "Ontario", path: "toronto" },
+                    { name: "Vancouver", region: "British Columbia", path: "vancouver" },
+                    { name: "Victoria", region: "British Columbia", path: "victoria" },
+                    { name: "Winnipeg", region: "Manitoba", path: "winnipeg" }
+                ],
+                "United States": [
+                    { name: "Albany", region: "New York", path: "albany" },
+                    { name: "Asheville", region: "North Carolina", path: "asheville" },
+                    { name: "Austin", region: "Texas", path: "austin" },
+                    { name: "Boston", region: "Massachusetts", path: "boston" },
+                    { name: "Bozeman", region: "Montana", path: "bozeman" },
+                    { name: "Broward County", region: "Florida", path: "broward-county" },
+                    { name: "Cambridge", region: "Massachusetts", path: "cambridge" },
+                    { name: "Chicago", region: "Illinois", path: "chicago" },
+                    { name: "Clark County", region: "Nevada", path: "clark-county" },
+                    { name: "Columbus", region: "Ohio", path: "columbus" },
+                    { name: "Dallas", region: "Texas", path: "dallas" },
+                    { name: "Denver", region: "Colorado", path: "denver" },
+                    { name: "Fort Worth", region: "Texas", path: "fort-worth" },
+                    { name: "Hawaii", region: "Hawaii", path: "hawaii" },
+                    { name: "Jersey City", region: "New Jersey", path: "jersey-city" },
+                    { name: "Los Angeles", region: "California", path: "los-angeles" },
+                    { name: "Nashville", region: "Tennessee", path: "nashville" },
+                    { name: "New Orleans", region: "Louisiana", path: "new-orleans" },
+                    { name: "New York City", region: "New York", path: "new-york-city" },
+                    { name: "Newark", region: "New Jersey", path: "newark" },
+                    { name: "Oakland", region: "California", path: "oakland" },
+                    { name: "Pacific Grove", region: "California", path: "pacific-grove" },
+                    { name: "Portland", region: "Oregon", path: "portland" },
+                    { name: "Rhode Island", region: "Rhode Island", path: "rhode-island" },
+                    { name: "Rochester", region: "New York", path: "rochester" },
+                    { name: "Salem", region: "Oregon", path: "salem" },
+                    { name: "San Diego", region: "California", path: "san-diego" },
+                    { name: "San Francisco", region: "California", path: "san-francisco" },
+                    { name: "San Mateo County", region: "California", path: "san-mateo-county" },
+                    { name: "Santa Clara County", region: "California", path: "santa-clara-county" },
+                    { name: "Santa Cruz County", region: "California", path: "santa-cruz-county" },
+                    { name: "Seattle", region: "Washington", path: "seattle" },
+                    { name: "Twin Cities MSA", region: "Minnesota", path: "twin-cities-msa" },
+                    { name: "Washington, D.C.", region: "District of Columbia", path: "washington-dc" }
+                ]
+            },
+            "Europe": {
+                "Austria": [
+                    { name: "Vienna", region: "Vienna", path: "vienna" }
+                ],
+                "Belgium": [
+                    { name: "Antwerp", region: "Flemish Region", path: "antwerp" },
+                    { name: "Brussels", region: "Brussels", path: "brussels" },
+                    { name: "Ghent", region: "Flemish Region", path: "ghent" }
+                ],
+                "Czech Republic": [
+                    { name: "Prague", region: "Prague", path: "prague" }
+                ],
+                "Denmark": [
+                    { name: "Copenhagen", region: "Hovedstaden", path: "copenhagen" }
+                ],
+                "France": [
+                    { name: "Bordeaux", region: "Nouvelle-Aquitaine", path: "bordeaux" },
+                    { name: "Lyon", region: "Auvergne-Rhone-Alpes", path: "lyon" },
+                    { name: "Paris", region: "Île-de-France", path: "paris" },
+                    { name: "Pays Basque", region: "Pyrénées-Atlantiques", path: "pays-basque" }
+                ],
+                "Germany": [
+                    { name: "Berlin", region: "Berlin", path: "berlin" },
+                    { name: "Munich", region: "Bavaria", path: "munich" }
+                ],
+                "Greece": [
+                    { name: "Athens", region: "Attica", path: "athens" },
+                    { name: "Crete", region: "Crete", path: "crete" },
+                    { name: "South Aegean", region: "South Aegean", path: "south-aegean" },
+                    { name: "Thessaloniki", region: "Central Macedonia", path: "thessaloniki" }
+                ],
+                "Hungary": [
+                    { name: "Budapest", region: "Közép-Magyarország", path: "budapest" }
+                ],
+                "Ireland": [
+                    { name: "Dublin", region: "Leinster", path: "dublin" }
+                ],
+                "Italy": [
+                    { name: "Bergamo", region: "Lombardia", path: "bergamo" },
+                    { name: "Bologna", region: "Emilia-Romagna", path: "bologna" },
+                    { name: "Florence", region: "Toscana", path: "florence" },
+                    { name: "Milan", region: "Lombardy", path: "milan" },
+                    { name: "Naples", region: "Campania", path: "naples" },
+                    { name: "Puglia", region: "Puglia", path: "puglia" },
+                    { name: "Rome", region: "Lazio", path: "rome" },
+                    { name: "Sicily", region: "Sicilia", path: "sicily" },
+                    { name: "Trentino", region: "Trentino-Alto Adige/Südtirol", path: "trentino" },
+                    { name: "Venice", region: "Veneto", path: "venice" }
+                ],
+                "Latvia": [
+                    { name: "Riga", region: "Riga", path: "riga" }
+                ],
+                "Norway": [
+                    { name: "Oslo", region: "Oslo", path: "oslo" }
+                ],
+                "Portugal": [
+                    { name: "Lisbon", region: "Lisbon", path: "lisbon" },
+                    { name: "Porto", region: "Norte", path: "porto" }
+                ],
+                "Spain": [
+                    { name: "Barcelona", region: "Catalonia", path: "barcelona" },
+                    { name: "Euskadi", region: "Euskadi", path: "euskadi" },
+                    { name: "Girona", region: "Catalonia", path: "girona" },
+                    { name: "Madrid", region: "Comunidad de Madrid", path: "madrid" },
+                    { name: "Malaga", region: "Andalucía", path: "malaga" },
+                    { name: "Mallorca", region: "Islas Baleares", path: "mallorca" },
+                    { name: "Menorca", region: "Islas Baleares", path: "menorca" },
+                    { name: "Sevilla", region: "Andalucía", path: "sevilla" },
+                    { name: "Valencia", region: "Valencia", path: "valencia" }
+                ],
+                "Sweden": [
+                    { name: "Stockholm", region: "Stockholms län", path: "stockholm" }
+                ],
+                "Switzerland": [
+                    { name: "Geneva", region: "Geneva", path: "geneva" },
+                    { name: "Vaud", region: "Vaud", path: "vaud" },
+                    { name: "Zurich", region: "Zürich", path: "zurich" }
+                ],
+                "The Netherlands": [
+                    { name: "Amsterdam", region: "North Holland", path: "amsterdam" },
+                    { name: "Rotterdam", region: "South Holland", path: "rotterdam" },
+                    { name: "The Hague", region: "South Holland", path: "the-hague" }
+                ],
+                "Turkey": [
+                    { name: "Istanbul", region: "Marmara", path: "istanbul" }
+                ],
+                "United Kingdom": [
+                    { name: "Bristol", region: "England", path: "bristol" },
+                    { name: "Edinburgh", region: "Scotland", path: "edinburgh" },
+                    { name: "Greater Manchester", region: "England", path: "greater-manchester" },
+                    { name: "London", region: "England", path: "london" }
+                ]
+            },
+            "Africa": {
+                "South Africa": [
+                    { name: "Cape Town", region: "Western Cape", path: "cape-town" }
+                ]
+            },
+            "Asia-Pacific": {
+                "Australia": [
+                    { name: "Barossa Valley", region: "South Australia", path: "barossa-valley" },
+                    { name: "Barwon South West", region: "Victoria", path: "barwon-south-west" },
+                    { name: "Brisbane", region: "Queensland", path: "brisbane" },
+                    { name: "Melbourne", region: "Victoria", path: "melbourne" },
+                    { name: "Mid North Coast", region: "New South Wales", path: "mid-north-coast" },
+                    { name: "Mornington Peninsula", region: "Victoria", path: "mornington-peninsula" },
+                    { name: "Northern Rivers", region: "New South Wales", path: "northern-rivers" },
+                    { name: "Sunshine Coast", region: "Queensland", path: "sunshine-coast" },
+                    { name: "Sydney", region: "New South Wales", path: "sydney" },
+                    { name: "Tasmania", region: "Tasmania", path: "tasmania" },
+                    { name: "Western Australia", region: "Western Australia", path: "western-australia" }
+                ],
+                "China": [
+                    { name: "Beijing", region: "Beijing", path: "beijing" },
+                    { name: "Hong Kong", region: "Hong Kong", path: "hong-kong" },
+                    { name: "Shanghai", region: "Shanghai", path: "shanghai" }
+                ],
+                "Japan": [
+                    { name: "Tokyo", region: "Kantō", path: "tokyo" }
+                ],
+                "Singapore": [
+                    { name: "Singapore", region: "Singapore", path: "singapore" }
+                ],
+                "Taiwan": [
+                    { name: "Taipei", region: "Northern Taiwan", path: "taipei" }
+                ],
+                "Thailand": [
+                    { name: "Bangkok", region: "Central Thailand", path: "bangkok" }
+                ]
+            },
+            "Latin America": {
+                "Argentina": [
+                    { name: "Buenos Aires", region: "Ciudad Autónoma de Buenos Aires", path: "buenos-aires" }
+                ],
+                "Belize": [
+                    { name: "Belize", region: "Belize", path: "belize" }
+                ],
+                "Brazil": [
+                    { name: "Rio de Janeiro", region: "Rio de Janeiro", path: "rio-de-janeiro" }
+                ],
+                "Chile": [
+                    { name: "Santiago", region: "Región Metropolitana de Santiago", path: "santiago" }
+                ],
+                "Mexico": [
+                    { name: "Mexico City", region: "Distrito Federal", path: "mexico-city" }
+                ]
+            }
+        };
+
+        // Flattened city list for searching
+        const allCities = [];
+        for (const continent in citiesByContinent) {
+            for (const country in citiesByContinent[continent]) {
+                citiesByContinent[continent][country].forEach(city => {
+                    allCities.push({
+                        ...city,
+                        country: country,
+                        continent: continent
+                    });
+                });
+            }
+        }
+
+        // DOM elements
+        const continentSelect = document.getElementById('continent-select');
+        const countrySelect = document.getElementById('country-select');
+        const citySelect = document.getElementById('city-select');
+        const searchInput = document.getElementById('search');
+        const goButton = document.getElementById('go-button');
+        const airbnbFrame = document.getElementById('airbnb-frame');
+        const cityGrid = document.getElementById('city-grid');
+
+        // Populate country dropdown based on continent
+        function populateCountryDropdown(continent = 'all') {
+            countrySelect.innerHTML = '<option value="all">All Countries</option>';
+            
+            if (continent === 'all') {
+                // Get all unique countries
+                const countries = new Set();
+                for (const cont in citiesByContinent) {
+                    for (const country in citiesByContinent[cont]) {
+                        countries.add(country);
+                    }
+                }
+                Array.from(countries).sort().forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            } else if (citiesByContinent[continent]) {
+                Object.keys(citiesByContinent[continent]).sort().forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countrySelect.appendChild(option);
+                });
+            }
+            
+            // Trigger city population
+            populateCityDropdown(continent, countrySelect.value);
+        }
+
+        // Populate city dropdown
+        function populateCityDropdown(continent = 'all', country = 'all', searchTerm = '') {
+            citySelect.innerHTML = '<option value="">Select a city</option>';
+            
+            const filteredCities = allCities.filter(city => {
+                const matchesContinent = continent === 'all' || city.continent === continent;
+                const matchesCountry = country === 'all' || city.country === country;
+                const matchesSearch = searchTerm === '' || 
+                    city.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    city.region.toLowerCase().includes(searchTerm.toLowerCase());
+                return matchesContinent && matchesCountry && matchesSearch;
+            });
+            
+            filteredCities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city.path;
+                option.textContent = `${city.name}, ${city.region}, ${city.country}`;
+                citySelect.appendChild(option);
+            });
+        }
+
+        // Populate city grid
+        function populateCityGrid(continent = 'all', country = 'all', searchTerm = '') {
+            cityGrid.innerHTML = '';
+            
+            // Filter continents
+            const filteredContinents = continent === 'all' 
+                ? Object.keys(citiesByContinent) 
+                : [continent];
+            
+            let hasResults = false;
+            
+            filteredContinents.forEach(cont => {
+                // Filter countries
+                const countries = country === 'all'
+                    ? Object.keys(citiesByContinent[cont])
+                    : Object.keys(citiesByContinent[cont]).filter(c => c === country);
+                
+                countries.forEach(countryName => {
+                    // Filter cities
+                    const countryCities = citiesByContinent[cont][countryName].filter(city => {
+                        const matchesSearch = searchTerm === '' || 
+                            city.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            city.region.toLowerCase().includes(searchTerm.toLowerCase());
+                        return matchesSearch;
+                    });
+                    
+                    if (countryCities.length > 0) {
+                        hasResults = true;
+                        
+                        // Add continent header if showing all continents
+                        if (continent === 'all') {
+                            const continentHeader = document.createElement('div');
+                            continentHeader.className = 'region-header';
+                            continentHeader.textContent = cont;
+                            cityGrid.appendChild(continentHeader);
+                        }
+                        
+                        // Add country header
+                        const countryHeader = document.createElement('div');
+                        countryHeader.className = 'country-header';
+                        countryHeader.textContent = countryName;
+                        cityGrid.appendChild(countryHeader);
+                        
+                        // Add cities
+                        countryCities.forEach(city => {
+                            const cityCard = document.createElement('div');
+                            cityCard.className = 'city-card';
+                            cityCard.textContent = `${city.name}, ${city.region}`;
+                            cityCard.dataset.path = city.path;
+                            cityCard.addEventListener('click', () => {
+                                loadCity(city.path);
+                            });
+                            cityGrid.appendChild(cityCard);
+                        });
+                    }
+                });
+            });
+            
+            if (!hasResults) {
+                const noResults = document.createElement('div');
+                noResults.className = 'no-results';
+                noResults.textContent = 'No cities match your search criteria';
+                cityGrid.appendChild(noResults);
+            }
+        }
+
+        // Load city in iframe
+        function loadCity(cityPath) {
+            if (cityPath) {
+                // Remove the Inside Airbnb banner by navigating directly to the explore page
+                airbnbFrame.src = `https://insideairbnb.com/${cityPath}/`;
+            }
+        }
+
+        // Event listeners
+        continentSelect.addEventListener('change', () => {
+            const selectedContinent = continentSelect.value;
+            populateCountryDropdown(selectedContinent);
+            updateCityDisplay();
+        });
+
+        countrySelect.addEventListener('change', () => {
+            updateCityDisplay();
+        });
+
+        searchInput.addEventListener('input', () => {
+            updateCityDisplay();
+        });
+
+        goButton.addEventListener('click', () => {
+            const selectedCity = citySelect.value;
+            loadCity(selectedCity);
+        });
+
+        // Update both dropdown and grid
+        function updateCityDisplay() {
+            const selectedContinent = continentSelect.value;
+            const selectedCountry = countrySelect.value;
+            const searchTerm = searchInput.value.trim();
+            
+            populateCityDropdown(selectedContinent, selectedCountry, searchTerm);
+            populateCityGrid(selectedContinent, selectedCountry, searchTerm);
+        }
+
+        // Initialize
+        populateCountryDropdown();
+        populateCityGrid();
+    </script>
+</body>
+</html>

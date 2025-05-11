@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Property Risk Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            margin-top: 8px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .form-container {
+            padding: 25px 30px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        input[type="number"], select {
+            width: 70px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .score-display {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .risk-premium {
+            background-color: rgba(21, 101, 192, 0.1);
+            color: var(--primary);
+        }
+        
+        .risk-low {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: #2e7d32;
+        }
+        
+        .risk-moderate {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: #f8961e;
+        }
+        
+        .risk-high {
+            background-color: rgba(249, 65, 68, 0.1);
+            color: #f94144;
+        }
+        
+        .adjustments {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .adjustment-item {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        
+        .bonus {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        .penalty {
+            color: #f94144;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success), var(--primary));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .section-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px 0;
+            user-select: none;
+        }
+        
+        .section-toggle i {
+            transition: transform 0.3s ease;
+        }
+        
+        .section-toggle.collapsed i {
+            transform: rotate(-90deg);
+        }
+        
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .section-content.collapsed {
+            max-height: 0 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Premium Property Risk Analyzer</h1>
+            <div class="subtitle">Comprehensive property evaluation tool for real estate professionals</div>
+        </header>
+        
+        <div class="form-container">
+            <div class="section-toggle">
+                <h2><i class="fas fa-home"></i> Property Features</h2>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Range</th>
+                            <th>Input</th>
+                            <th>Weight</th>
+                            <th>Rules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Number of Bedrooms</td>
+                            <td>1 - 5</td>
+                            <td><input type="number" id="bedrooms" min="1" max="5" value="1"></td>
+                            <td>20%</td>
+                            <td><span class="penalty">≤2 beds: -5% (unless commission ≥20%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Number of Bathrooms</td>
+                            <td>1 - 5</td>
+                            <td><input type="number" id="bathrooms" min="1" max="5" value="1"></td>
+                            <td>10%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Number of Kitchens</td>
+                            <td>1 - 3</td>
+                            <td><input type="number" id="kitchens" min="1" max="3" value="1"></td>
+                            <td>5%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Number of Garages</td>
+                            <td>1 - 3</td>
+                            <td><input type="number" id="garages" min="1" max="3" value="1"></td>
+                            <td>3%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Number of Pools</td>
+                            <td>1 - 3</td>
+                            <td><input type="number" id="pools" min="1" max="3" value="1"></td>
+                            <td>5%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Entertainment Areas</td>
+                            <td>1 - 3</td>
+                            <td><input type="number" id="entertainment" min="1" max="3" value="1"></td>
+                            <td>3%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Living Rooms</td>
+                            <td>1 - 3</td>
+                            <td><input type="number" id="livingRooms" min="1" max="3" value="1"></td>
+                            <td>3%</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Parking Spaces</td>
+                            <td>1 - 5</td>
+                            <td><input type="number" id="parking" min="1" max="5" value="1"></td>
+                            <td>3%</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section-toggle">
+                <h2><i class="fas fa-star"></i> Quality & Appeal Ratings</h2>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Range</th>
+                            <th>Input</th>
+                            <th>Weight</th>
+                            <th>Rules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Luxury Rating</td>
+                            <td>0 - 10</td>
+                            <td><input type="number" id="luxury" min="0" max="10" value="5"></td>
+                            <td>15%</td>
+                            <td><span class="bonus">≥7: +5%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Location Rating</td>
+                            <td>0 - 10</td>
+                            <td><input type="number" id="location" min="0" max="10" value="5"></td>
+                            <td>15%</td>
+                            <td><span class="bonus">≥7: +5%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Decor Rating</td>
+                            <td>1 - 10</td>
+                            <td><input type="number" id="decor" min="1" max="10" value="5"></td>
+                            <td>5%</td>
+                            <td><span class="bonus">≥7: +5%</span> | <span class="penalty"><6: -5%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Owner Rating</td>
+                            <td>1 - 10</td>
+                            <td><input type="number" id="owner" min="1" max="10" value="5"></td>
+                            <td>5%</td>
+                            <td><span class="penalty"><7: -7%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Security Rating</td>
+                            <td>1 - 5</td>
+                            <td><input type="number" id="security" min="1" max="5" value="3"></td>
+                            <td>3%</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section-toggle">
+                <h2><i class="fas fa-chart-line"></i> Business Factors</h2>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Range</th>
+                            <th>Input</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Easy Accessibility</td>
+                            <td>Yes / No</td>
+                            <td>
+                                <select id="accessibility">
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </td>
+                            <td><span class="bonus">Yes = +2%</span> | <span class="penalty">No = -1%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Commission Split</td>
+                            <td>1 - 30%</td>
+                            <td><input type="number" id="commission" min="1" max="30" value="5">%</td>
+                            <td><span class="penalty"><10%: -3%</span> | <span class="bonus">≥20%: +4%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <button type="button" class="btn" onclick="calculateScore()">
+                <i class="fas fa-calculator"></i> Calculate Risk Score
+            </button>
+            
+            <div id="result" class="result-container">
+                <h2>Analysis Results</h2>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                </div>
+                <div class="score-display" id="finalScore">0%</div>
+                <div>
+                    <strong>Risk Assessment:</strong> 
+                    <span id="riskLevel" class="risk-badge">Not Calculated</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <strong>Commission Split:</strong> 
+                    <span id="commissionOutput">0</span>%
+                </div>
+                
+                <div class="adjustments" id="adjustments">
+                    <h3>Score Adjustments</h3>
+                    <div id="adjustmentsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sections
+        document.querySelectorAll('.section-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const content = toggle.nextElementSibling;
+                toggle.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+                
+                if (!content.classList.contains('collapsed')) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
+            });
+            
+            // Initialize all sections as expanded
+            const content = toggle.nextElementSibling;
+            content.style.maxHeight = content.scrollHeight + 'px';
+        });
+
+        function calculateScore() {
+            // Property Features
+            const bedrooms = parseInt(document.getElementById('bedrooms').value) || 1;
+            const bathrooms = parseInt(document.getElementById('bathrooms').value) || 1;
+            const kitchens = parseInt(document.getElementById('kitchens').value) || 1;
+            const garages = parseInt(document.getElementById('garages').value) || 1;
+            const pools = parseInt(document.getElementById('pools').value) || 1;
+            const entertainment = parseInt(document.getElementById('entertainment').value) || 1;
+            const livingRooms = parseInt(document.getElementById('livingRooms').value) || 1;
+            const parking = parseInt(document.getElementById('parking').value) || 1;
+
+            // Quality & Appeal Ratings
+            const luxury = parseInt(document.getElementById('luxury').value) || 0;
+            const location = parseInt(document.getElementById('location').value) || 0;
+            const decor = parseInt(document.getElementById('decor').value) || 1;
+            const owner = parseInt(document.getElementById('owner').value) || 1;
+            const security = parseInt(document.getElementById('security').value) || 1;
+
+            // Accessibility & Commission
+            const accessibility = document.getElementById('accessibility').value;
+            const commission = parseInt(document.getElementById('commission').value) || 5;
+
+            // Base Score Calculation
+            let score = 0;
+            let adjustments = [];
+
+            // Property Features (52%)
+            score += (bedrooms / 5) * 0.20;
+            score += (bathrooms / 5) * 0.10;
+            score += (kitchens / 3) * 0.05;
+            score += (garages / 3) * 0.03;
+            score += (pools / 3) * 0.05;
+            score += (entertainment / 3) * 0.03;
+            score += (livingRooms / 3) * 0.03;
+            score += (parking / 5) * 0.03;
+
+            // Quality & Appeal (43%)
+            score += (luxury / 10) * 0.15;
+            score += (location / 10) * 0.15;
+            score += (decor / 10) * 0.05;
+            score += (owner / 10) * 0.05;
+            score += (security / 5) * 0.03;
+
+            // --- Penalties & Bonuses ---
+            // 1. Bedrooms ≤2: -5% (unless commission ≥20%)
+            if (bedrooms <= 2 && commission < 20) {
+                score -= 0.05;
+                adjustments.push({
+                    text: "Bedrooms ≤2: -5%",
+                    type: "penalty"
+                });
+            }
+
+            // 2. Decor <6: -5%
+            if (decor < 6) {
+                score -= 0.05;
+                adjustments.push({
+                    text: "Decor <6: -5%",
+                    type: "penalty"
+                });
+            }
+
+            // 3. Owner <7: -7%
+            if (owner < 7) {
+                score -= 0.07;
+                adjustments.push({
+                    text: "Owner Rating <7: -7%",
+                    type: "penalty"
+                });
+            }
+
+            // 4. Commission <10%: -3% | ≥20%: +4%
+            if (commission < 10) {
+                score -= 0.03;
+                adjustments.push({
+                    text: "Commission <10%: -3%",
+                    type: "penalty"
+                });
+            } else if (commission >= 20) {
+                score += 0.04;
+                adjustments.push({
+                    text: "Commission ≥20%: +4%",
+                    type: "bonus"
+                });
+            }
+
+            // 5. Accessibility: Yes = +2% / No = -1%
+            if (accessibility === 'yes') {
+                score += 0.02;
+                adjustments.push({
+                    text: "Easy Accessibility: +2%",
+                    type: "bonus"
+                });
+            } else {
+                score -= 0.01;
+                adjustments.push({
+                    text: "No Easy Accessibility: -1%",
+                    type: "penalty"
+                });
+            }
+
+            // 6. Bonus Ratings (Luxury, Location, Decor ≥7: +5% each)
+            if (luxury >= 7) {
+                score += 0.05;
+                adjustments.push({
+                    text: "Luxury ≥7: +5%",
+                    type: "bonus"
+                });
+            }
+            if (location >= 7) {
+                score += 0.05;
+                adjustments.push({
+                    text: "Location ≥7: +5%",
+                    type: "bonus"
+                });
+            }
+            if (decor >= 7) {
+                score += 0.05;
+                adjustments.push({
+                    text: "Decor ≥7: +5%",
+                    type: "bonus"
+                });
+            }
+
+            // Cap score at 105%
+            score = Math.min(score, 1.05);
+            score = Math.max(score, 0);
+
+            // Final Score (0-105%)
+            const finalScore = Math.round(score * 100);
+            document.getElementById('finalScore').textContent = finalScore + '%';
+            document.getElementById('progressBar').style.width = (finalScore / 105 * 100) + '%';
+            document.getElementById('commissionOutput').textContent = commission;
+
+            // Risk Assessment
+            let riskLevel = '';
+            let riskClass = '';
+            if (finalScore >= 95) {
+                riskLevel = 'Premium (Elite)';
+                riskClass = 'risk-premium';
+            } else if (finalScore >= 80) {
+                riskLevel = 'Excellent (Low Risk)';
+                riskClass = 'risk-low';
+            } else if (finalScore >= 65) {
+                riskLevel = 'Good (Moderate)';
+                riskClass = 'risk-moderate';
+            } else if (finalScore >= 50) {
+                riskLevel = 'Fair (High Risk)';
+                riskClass = 'risk-moderate';
+            } else {
+                riskLevel = 'High Risk';
+                riskClass = 'risk-high';
+            }
+
+            const riskElement = document.getElementById('riskLevel');
+            riskElement.textContent = riskLevel;
+            riskElement.className = 'risk-badge ' + riskClass;
+
+            // Display adjustments
+            const adjustmentsList = document.getElementById('adjustmentsList');
+            adjustmentsList.innerHTML = '';
+            
+            if (adjustments.length === 0) {
+                adjustmentsList.innerHTML = '<div class="adjustment-item">No adjustments applied</div>';
+            } else {
+                adjustments.forEach(adj => {
+                    const item = document.createElement('div');
+                    item.className = 'adjustment-item';
+                    item.innerHTML = `<span class="${adj.type}">${adj.text}</span>`;
+                    adjustmentsList.appendChild(item);
+                });
+            }
+
+            // Show results
+            document.getElementById('result').style.display = 'block';
+            
+            // Smooth scroll to results
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

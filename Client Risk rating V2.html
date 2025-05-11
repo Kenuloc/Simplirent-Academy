@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Client Safety Check | Booking Risk Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #6b8cae;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --text: #4a4a4a;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+        
+        .calculator-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary);
+            font-size: 0.95em;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-family: 'Open Sans', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            background-color: #3a5a8f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+            border-left: 5px solid var(--primary);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .low-risk {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left-color: var(--success);
+        }
+        
+        .medium-risk {
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left-color: var(--warning);
+        }
+        
+        .high-risk {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left-color: var(--danger);
+        }
+        
+        .risk-factors {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            font-size: 0.95em;
+        }
+        
+        .risk-factors th, .risk-factors td {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .risk-factors th {
+            background-color: rgba(74, 111, 165, 0.05);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .risk-factors tr:hover {
+            background-color: rgba(74, 111, 165, 0.03);
+        }
+        
+        .risk-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .risk-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .risk-title {
+            font-weight: 600;
+            font-size: 1.3em;
+            margin: 0;
+        }
+        
+        .risk-description {
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+        
+        .emoji-rating {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .emoji-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .emoji-option:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+        
+        .emoji-option.selected {
+            background-color: rgba(74, 111, 165, 0.2);
+        }
+        
+        .emoji {
+            font-size: 24px;
+        }
+        
+        .emoji-label {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .calculator-card {
+                padding: 20px;
+            }
+            
+            .risk-factors {
+                font-size: 0.85em;
+            }
+            
+            .risk-factors th, .risk-factors td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator-card">
+            <h1>Client Safety Check</h1>
+            <p class="subtitle">Assess booking risk with our friendly calculator</p>
+            
+            <div class="form-group">
+                <label for="profileCompletion">
+                    1. Profile Completion 
+                    <span class="tooltip">🛈<span class="tooltiptext">Has the client fully completed their online profile?</span></span>
+                </label>
+                <select id="profileCompletion">
+                    <option value="pass">✅ Complete (Pass)</option>
+                    <option value="fail">❌ Incomplete (Fail)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmationInfo">
+                    2. Verification Documents 
+                    <span class="tooltip">🛈<span class="tooltiptext">Has the client uploaded ID, email, and contact info?</span></span>
+                </label>
+                <select id="confirmationInfo">
+                    <option value="pass">✅ Provided (Pass)</option>
+                    <option value="fail">❌ Not provided (Fail)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="timeOnPlatform">
+                    3. Time on Platform 
+                    <span class="tooltip">🛈<span class="tooltiptext">How long has the client been using our service?</span></span>
+                </label>
+                <select id="timeOnPlatform">
+                    <option value="1-3">🆕 1-3 months (Higher risk)</option>
+                    <option value="3-12">🔄 3-12 months (Medium risk)</option>
+                    <option value="1+">🏆 More than 1 year (Lower risk)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="reviews">
+                    4. Client Reviews 
+                    <span class="tooltip">🛈<span class="tooltiptext">How many reviews does this client have from previous stays?</span></span>
+                </label>
+                <select id="reviews">
+                    <option value="0">😕 0 reviews (Higher risk)</option>
+                    <option value="1">🙂 1 review (Medium risk)</option>
+                    <option value="2+">😊 2+ reviews (Lower risk)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    5. Your Instinct 
+                    <span class="tooltip">🛈<span class="tooltiptext">Based on your interaction, how do you feel about this client?</span></span>
+                </label>
+                <div class="emoji-rating" id="gutFeelingSelector">
+                    <div class="emoji-option" data-value="1">
+                        <div class="emoji">😠</div>
+                        <div class="emoji-label">Very uneasy</div>
+                    </div>
+                    <div class="emoji-option" data-value="2">
+                        <div class="emoji">😕</div>
+                        <div class="emoji-label">Some doubts</div>
+                    </div>
+                    <div class="emoji-option" data-value="3">
+                        <div class="emoji">😐</div>
+                        <div class="emoji-label">Neutral</div>
+                    </div>
+                    <div class="emoji-option" data-value="4">
+                        <div class="emoji">🙂</div>
+                        <div class="emoji-label">Good feeling</div>
+                    </div>
+                    <div class="emoji-option" data-value="5">
+                        <div class="emoji">😊</div>
+                        <div class="emoji-label">Excellent</div>
+                    </div>
+                </div>
+                <input type="hidden" id="gutFeeling" value="3">
+            </div>
+            
+            <button class="btn" onclick="calculateRisk()">🔍 Calculate Risk Rating</button>
+            
+            <div id="results" class="results">
+                <div class="risk-header">
+                    <div class="risk-icon" id="riskIcon">📊</div>
+                    <h2 class="risk-title" id="riskTitle">Risk Assessment</h2>
+                </div>
+                
+                <div class="risk-description" id="riskDescription">
+                    Based on the information provided, here's our assessment:
+                </div>
+                
+                <table class="risk-factors">
+                    <tr>
+                        <th>Factor</th>
+                        <th>Status</th>
+                        <th>Points</th>
+                    </tr>
+                    <tr>
+                        <td>Profile Completion</td>
+                        <td id="profileStatus">-</td>
+                        <td id="profilePoints">0</td>
+                    </tr>
+                    <tr>
+                        <td>Verification</td>
+                        <td id="confirmationStatus">-</td>
+                        <td id="confirmationPoints">0</td>
+                    </tr>
+                    <tr>
+                        <td>Time on Platform</td>
+                        <td id="timeStatus">-</td>
+                        <td id="timePoints">0</td>
+                    </tr>
+                    <tr>
+                        <td>Client Reviews</td>
+                        <td id="reviewsStatus">-</td>
+                        <td id="reviewsPoints">0</td>
+                    </tr>
+                    <tr>
+                        <td>Your Instinct</td>
+                        <td id="gutStatus">-</td>
+                        <td id="gutPoints">0</td>
+                    </tr>
+                    <tr style="font-weight: 500;">
+                        <td>Total Risk Score</td>
+                        <td></td>
+                        <td id="totalPoints">0</td>
+                    </tr>
+                </table>
+                
+                <div id="riskAssessment" style="margin-top: 25px; padding: 15px; border-radius: var(--border-radius);">
+                    <h3 style="margin-top: 0;" id="riskLevel">-</h3>
+                    <p id="riskRecommendation">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Setup emoji rating selector
+        const emojiOptions = document.querySelectorAll('.emoji-option');
+        const gutFeelingInput = document.getElementById('gutFeeling');
+        
+        emojiOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                emojiOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Update hidden input value
+                gutFeelingInput.value = this.getAttribute('data-value');
+            });
+        });
+        
+        // Select the neutral option by default
+        emojiOptions[2].classList.add('selected');
+        
+        function calculateRisk() {
+            // Get values from form
+            const profileCompletion = document.getElementById('profileCompletion').value;
+            const confirmationInfo = document.getElementById('confirmationInfo').value;
+            const timeOnPlatform = document.getElementById('timeOnPlatform').value;
+            const reviews = document.getElementById('reviews').value;
+            const gutFeeling = parseInt(document.getElementById('gutFeeling').value);
+            
+            // Calculate points for each factor
+            let profilePoints = profileCompletion === 'fail' ? 1 : 0;
+            let confirmationPoints = confirmationInfo === 'fail' ? 1 : 0;
+            
+            let timePoints;
+            let timeStatus;
+            if (timeOnPlatform === '1-3') {
+                timePoints = 2;
+                timeStatus = 'Higher risk ❗';
+            } else if (timeOnPlatform === '3-12') {
+                timePoints = 1;
+                timeStatus = 'Medium risk ⚠️';
+            } else {
+                timePoints = 0;
+                timeStatus = 'Lower risk ✅';
+            }
+            
+            let reviewsPoints;
+            let reviewsStatus;
+            if (reviews === '0') {
+                reviewsPoints = 1;
+                reviewsStatus = 'Higher risk ❗';
+            } else if (reviews === '1') {
+                reviewsPoints = 0.5;
+                reviewsStatus = 'Medium risk ⚠️';
+            } else {
+                reviewsPoints = 0;
+                reviewsStatus = 'Lower risk ✅';
+            }
+            
+            let gutPoints = gutFeeling < 3 ? 1 : 0;
+            let gutStatus = gutFeeling < 3 ? 'Higher risk ❗' : 'Lower risk ✅';
+            
+            // Calculate total points
+            const totalPoints = profilePoints + confirmationPoints + timePoints + reviewsPoints + gutPoints;
+            
+            // Display results
+            document.getElementById('profileStatus').textContent = profileCompletion === 'fail' ? 'Incomplete ❗' : 'Complete ✅';
+            document.getElementById('profilePoints').textContent = profilePoints;
+            
+            document.getElementById('confirmationStatus').textContent = confirmationInfo === 'fail' ? 'Missing ❗' : 'Verified ✅';
+            document.getElementById('confirmationPoints').textContent = confirmationPoints;
+            
+            document.getElementById('timeStatus').textContent = timeStatus;
+            document.getElementById('timePoints').textContent = timePoints;
+            
+            document.getElementById('reviewsStatus').textContent = reviewsStatus;
+            document.getElementById('reviewsPoints').textContent = reviewsPoints;
+            
+            document.getElementById('gutStatus').textContent = gutStatus;
+            document.getElementById('gutPoints').textContent = gutPoints;
+            
+            document.getElementById('totalPoints').textContent = totalPoints.toFixed(1);
+            
+            // Determine risk level
+            let riskLevel, riskClass, recommendation, riskIcon;
+            if (totalPoints <= 1) {
+                riskLevel = '✅ Low Risk';
+                riskClass = 'low-risk';
+                recommendation = 'This client appears to be low risk. You can proceed with the booking confidently.';
+                riskIcon = '✅';
+            } else if (totalPoints <= 3) {
+                riskLevel = '⚠️ Medium Risk';
+                riskClass = 'medium-risk';
+                recommendation = 'This client has some risk factors. Please review manually before proceeding. You might want to request additional information.';
+                riskIcon = '⚠️';
+            } else {
+                riskLevel = '❗ High Risk';
+                riskClass = 'high-risk';
+                recommendation = 'This client shows multiple risk factors. We recommend either declining the booking or requesting substantial additional verification.';
+                riskIcon = '❗';
+            }
+            
+            document.getElementById('riskLevel').textContent = riskLevel;
+            document.getElementById('riskRecommendation').textContent = recommendation;
+            document.getElementById('riskAssessment').className = riskClass;
+            document.getElementById('riskIcon').textContent = riskIcon;
+            document.getElementById('riskTitle').textContent = riskLevel + ' Assessment';
+            
+            // Show results with animation
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
